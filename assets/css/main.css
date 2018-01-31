@@ -20,6 +20,9 @@ body{
     padding-top:56px;
     background:#ffff;
 }
+.btn:focus, .btn.focus{
+    box-shadow: none!important;
+}
 a,a:hover,a:focus{
     text-decoration: none !important;
     color: inherit !important;
@@ -202,6 +205,12 @@ img{
     border-radius: 4px;
     margin-right: 10px;
     transition: all ease-in .2s;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
 }
 .note-list .meta .collection-tag:hover {
     background-color:rgb(254,247,246);
@@ -228,4 +237,345 @@ img{
     .note-list li.have-img .content {
         padding-right: 135px;
     }
+}
+.index .main .load-more{
+    display: block;
+    width: 100%;
+    height: 40px;
+    line-height: 20px;
+    text-align: center;
+    color: #fff!important;
+    background: #a5a5a5;
+    border-radius: 20px;
+    font-size: 15px;
+    margin: 30px auto 60px;
+    padding: 10px 15px;
+}
+.index .recommend-author a.download{
+    width: 100%;
+    margin-bottom: 30px;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    padding: 7px 10px;
+}
+.index .recommend-author a.download img{
+    width: 60px;
+    height: 60px;
+}
+.index .recommend-author a.download .info{
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 7px;
+}
+.index .recommend-author a.download .info .title{
+    color: #333;
+    margin-bottom: 0;
+}
+.index .recommend-author a.download .info .description{
+    color: #999;
+    margin-top: 4px;
+    font-size: 13px;
+}
+.index .recommend-author .list{
+    margin: 0 0 20px;
+}
+.index .recommend-author a{
+    display: inline-block;
+}
+.index .recommend-author .title{
+    font-size: 14px;
+    color: #969696;
+    margin-bottom: 20px;
+}
+.index .recommend-author .title .page-change{
+    float: right;
+    color: #969696;
+}
+.index .recommend-author .title .page-change i{
+    transition: ease .2s;
+}
+.index .recommend-author .list li{
+    margin-top: 15px;
+}
+.index .recommend-author .list .avatar{
+    float: left;
+    width: 48px;
+    height: 48px;
+    margin-right: 10px;
+    display: block;
+}
+.index .recommend-author .list .follow{
+    float: right;
+    margin-top: 5px;
+    color: #42c02e!important;
+    font-size: 13px;
+}
+.index .recommend-author .list .name{
+    padding-top: 5px;
+    margin-right: 60px;
+    font-size: 14px;
+    display: block;
+}
+.index .recommend-author .list p{
+    margin: 2px 0 10px;
+    font-size: 12px;
+    color: #969696;
+}
+.index .recommend-author .find-more{
+    width: 100%;
+    padding: 7px 7px 7px 12px;
+    color: #787878!important;
+    border: 1px solid #ccc;
+    background-color: #f7f7f7;
+    font-size: 15px;
+    border-radius: 4px;
+    text-align: center;
+    line-height: 22px;
+}
+footer.my-container .row{
+    padding-top: 25px!important;
+    margin-left: -15px;
+    margin-right: -15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: 13px;
+
+}
+footer.my-container .row .main a{
+    color: #969696;
+    display: inline-block;
+}
+footer.my-container .row .main .icp{
+    color: #c8c8c8;
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+
+/*************************文章详情布局*****************************/
+.note {
+    position: relative;
+    padding-top: 10px;
+}
+.note .post{
+    width: 620px;
+    margin: 0 auto;
+    padding-top: 20px;
+    padding-bottom: 40px;
+}
+.note .post .article .title{
+    margin: 20px 0 0;
+}
+.note .post .article .author{
+    margin: 30px 0 40px;
+}
+.note .post .article .author .avatar{
+    width: 48px;
+    height: 48px;
+    display: inline-block;
+}
+.note .post .article .author .info{
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+.note .post .article .author .info .name{
+    margin-right: 3px;
+    font-size: 16px;
+    vertical-align: middle;
+}
+.note .post .article .info .follow1{
+    padding: 0 7px 0 5px;
+    font-size: 12px;
+    border-color: #42c02e!important;
+    color: #fff!important;
+    border-radius: 40px;
+    background-color: #42c02e;
+}
+.note .post .article .info .follow1:hover{
+    background-color: #3db922;
+}
+.note .post .article .info .follow2{
+    padding: 0 7px 0 5px;
+    font-size: 12px;
+    border-color: #ccc!important;
+    color: #969696!important;
+    border-radius: 40px;
+    background-color: #fff;
+}
+.note .post .article .info .follow2:hover{
+    background: none;
+}
+.note .post .article .author .meta{
+    margin-top: 5px;
+    font-size: 12px;
+    color: #969696;
+}
+.note .post .article .author .meta span{
+    padding-right: 5px;
+}
+.note .post .article .show-content{
+    font-size: 16px;
+    font-weight: 400;
+    word-break: break-word!important;
+    color: #2f2f2f;
+    line-height: 1.7;
+}
+.note .post .article .show-content p{
+    margin-bottom: 20px;
+}
+.note .post .article .show-foot{
+    margin-bottom: 30px;
+}
+.note .post .article .show-foot .notebook{
+    font-size: 12px;
+    color: #c8c8c8!important;
+}
+.note .post .article .show-foot .notebook i{
+    margin-right: 5px;
+}
+.note .post .article .show-foot .copyright{
+    float: right;
+    font-size: 12px;
+    color: #c8c8c8;
+    margin-top: 5px;
+}
+.note .post .article .follow-detail{
+    padding: 20px;
+    background: #f8f8f8;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+    font-size: 12px;
+}
+.note .post .article .follow-detail .avatar{
+    float: left;
+    margin-right: 10px;
+    width: 48px;
+    height: 48px;
+}
+.note .post .article .follow-detail .btn{
+    width: 100px;
+    font-size: 16px;
+    padding: 8px 0;
+    float: right;
+    font-weight: 400;
+}
+.note .post .article .follow-detail .info .follow2{
+    background: none;
+}
+.note .post .article .follow-detail .info span{
+    margin-left: 2px;
+}
+.note .post .article .follow-detail .info .title{
+    margin-right: 3px;
+    font-size: 17px;
+    vertical-align: middle;
+}
+.note .post .article .follow-detail .info .fa-mars{
+    font-size: 15px;
+    color: #3194d0;
+    vertical-align: middle;
+}
+.note .post .article .follow-detail .info p{
+   margin-bottom: 0;
+}
+.note .post .article .follow-detail .signature{
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e1e1e1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #969696;
+}
+.note .post .article .meta-bottom{
+    margin-top: 40px;
+    margin-bottom: 80px;
+}
+.note .post .article .meta-bottom .like{
+    display: inline-block;
+}
+.note .post .article .meta-bottom .share-group{
+    float: right;
+    margin-top: 6px;
+}
+.note .post .article .meta-bottom .like-group{
+    border: 1px solid #ea6f5a;
+    padding: 13px 0 15px;
+    border-radius: 40px;
+    font-size: 0;
+}
+.note .post .article .meta-bottom .activeClass {
+    border: 1px solid #ea6f5a;
+    padding: 13px 0 15px;
+    border-radius: 40px;
+    background-color: #ea6f5a!important;
+    color: white!important;
+}
+.note .post .article .meta-bottom .btn .btn-like .color,
+.note .post .article .meta-bottom .btn .modal-wrap .color{
+    color: white!important;
+}
+.note .post .article .meta-bottom .btn .modal-wrap.color{
+    border-left: 1px solid white;
+}
+.note .post .article .meta-bottom .btn:hover{
+    background-color: rgba(236,97,73,.05);
+}
+.note .post .article .meta-bottom .btn .btn-like{
+    display: inline-block;
+    font-size: 19px;
+}
+.note .post .article .meta-bottom .btn .btn-like a{
+    color: #ea6f5a!important;
+    padding: 18px 15px 18px 30px;
+    font-weight: 400;
+}
+.note .post .article .meta-bottom .btn .btn-like a i{
+    margin-right: 5px;
+    font-size: 21px;
+}
+.note .post .article .meta-bottom .btn .modal-wrap{
+    display: inline-block;
+    font-size: 18px;
+    border-left: 1px solid rgba(236,97,73,4);
+}
+.note .post .article .meta-bottom .btn .modal-wrap a{
+    color: #ea6f5a!important;
+    padding: 18px 30px 18px 17px;
+    font-weight: 400;
+}
+.note .post .article .meta-bottom .share-group .share-circle{
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    margin-left: 5px;
+    text-align: center;
+    border: 1px solid #dcdcdc;
+    border-radius: 50%;
+    vertical-align: middle;
+    display: inline-block;
+}
+.note .post .article .meta-bottom .share-group .share-circle:hover {
+    background:rgb(248,248,248);
+}
+.note .post .article .meta-bottom .share-group .share-circle i{
+    font-size: 24px;
+}
+.weixin{
+    color: #00bb29;
+}
+.weibo{
+    color: #e05244;
+}
+.picture{
+    color: #9b9b9b;
+}
+.note .post .article .meta-bottom .share-group .more-share {
+    width: auto;
+    padding: 4px 18px;
+    font-size: 14px;
+    color: #9b9b9b!important;
+    line-height: 40px;
+    border-radius: 50px;
 }
