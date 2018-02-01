@@ -82,9 +82,9 @@
                     <!--喜欢和分享-->
                     <div class="meta-bottom">
                         <div class="like">
-                            <div class="btn" :class="active" @click="changeActive">
+                            <div class="btn" :class="active">
                                 <div class="btn-like">
-                                    <a href="javascript:void(0)" :class="{color:isColor}">
+                                    <a href="javascript:void(0)" @click="changeActive" :class="{color:isColor}">
                                         <i class="fa fa-heart-o"></i>
                                         喜欢
                                     </a>
@@ -97,21 +97,58 @@
                             </div>
                         </div>
                         <div class="share-group">
-                            <a href="javascript:void(0)" class="share-circle">
+                            <a v-b-tooltip.hover.top="'分享到微信'" href="javascript:void(0)" class="share-circle ">
                                 <i class="fa fa-weixin weixin"></i>
                             </a>
-                           <a href="javascript:void(0)" class="share-circle">
+                            <a v-b-tooltip.hover.top="'分享到微博'" href="javascript:void(0)" class="share-circle">
                                 <i class="fa fa-weibo weibo"></i>
                             </a>
-                            <a href="javascript:void(0)" class="share-circle">
+                            <a v-b-tooltip.hover.top="'下载长微博图片'" href="javascript:void(0)" class="share-circle">
                                 <i class="fa fa-picture-o picture"></i>
                             </a>
-                            <a href="javascript:void(0)" class="share-circle more-share">
+                            <a href="javascript:void(0)" class="share-circle more-share active"
+                                @focus="onFocus" @blur="onBlur">
                                 更多分享
                             </a>
+                            <ul class="hiddenMenu" ref="hiddenMenu">
+                                <li>
+                                    <nuxt-link to="/share">
+                                        <i class="fa fa-star qqzone"></i>
+                                        <span>分享到QQ空间</span>
+                                    </nuxt-link>
+                                </li>
+                                <li>
+                                    <nuxt-link to="/share">
+                                        <i class="fa fa-twitter twitter"></i>
+                                        <span>分享到Twitter</span>
+                                    </nuxt-link>
+                                </li>
+                                <li>
+                                    <nuxt-link to="/share">
+                                        <i class="fa fa-facebook facebook"></i>
+                                        <span>分享到Facebook</span>
+                                    </nuxt-link>
+                                </li>
+                                <li>
+                                    <nuxt-link to="/share">
+                                        <i class="fa fa-google-plus google"
+                                        style="font-size: 15px"></i>
+                                        <span>分享到Google+</span>
+                                    </nuxt-link>
+                                </li>
+                                <li>
+                                    <nuxt-link to="/share">
+                                        <i class="fa fa-envira envira"></i>
+                                        <span>分享到豆瓣</span>
+                                    </nuxt-link>
+                                </li>
+                            </ul>
+                            <div class="hiddenThree" ref="hiddenThree"></div>
                         </div>
                     </div>
                 </div>
+                <!--回复-->
+                <my-comment></my-comment>
             </div>
             <!--悬浮的操作框-->
             <div class="side-bar"></div>
@@ -123,6 +160,7 @@
 
 <script>
     import myHeader from '../../components/myHeader'
+    import myComment from  '../../components/myComment'
     export default {
         data(){
             return{
@@ -142,7 +180,8 @@
             }
         },
         components:{
-            myHeader
+            myHeader,
+            myComment
         },
         methods:{
             haveSeen:function () {
@@ -188,6 +227,14 @@
                     this.isColor = !this.isColor;
                     this.$refs.spanNum.innerHTML = num - 1;
                 }
+            },
+            onFocus:function () {
+                this.$refs.hiddenMenu.style.display="block";
+                this.$refs.hiddenThree.style.display="block";
+            },
+            onBlur:function () {
+                this.$refs.hiddenMenu.style.display="none";
+                this.$refs.hiddenThree.style.display="none";
             }
         }
     }
