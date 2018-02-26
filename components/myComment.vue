@@ -3,18 +3,18 @@
         <div id="comment-list" class="comment-list">
             <!--提交的留言表单-->
             <form class="new-comment">
-                <nuxt-link to="/u" class="avatar">
-                    <img src="../assets/img/default-avatar.jpg" alt="">
+                <nuxt-link class="avatar" to="/u/213">
+                    <img src="../assets/img/default-avatar.jpg">
                 </nuxt-link>
-                <textarea placeholder="写下你的评论..." @focus="send_one=true" v-model="value"></textarea>
+                <textarea @focus="sendCommentBtn=true" placeholder="写下你的评论" v-model="commentData"></textarea>
                 <transition :duration="200" name="fade">
-                    <div class="write-function-block" v-if="send_one">
+                    <div v-if="sendCommentBtn" class="write-function-block clearfix">
                         <div class="emoji-modal-wrap">
-                            <a href="javascript:void(0)" class="emoji" @click="showEmoji=!showEmoji">
+                            <a href="javascript:void(0)" @click="showEmoji=!showEmoji" class="emoji">
                                 <i class="fa fa-smile-o"></i>
                             </a>
                             <transition :duration="200" name="fade">
-                                <div class="emoji-modal arrow-up" v-if="showEmoji">
+                                <div v-if="showEmoji" class="emoji-modal arrow-up">
                                     <vue-emoji @select="selectEmoji"></vue-emoji>
                                 </div>
                             </transition>
@@ -22,8 +22,8 @@
                         <div class="hint">
                             Ctrl+Enter 发表
                         </div>
-                        <a href="javascript:void(0)" class="btn btn-send" @click="sendData">发送</a>
-                        <a href="javascript:void(0)" class="cancel" @click="send_one=false">取消</a>
+                        <a class="btn btn-send" href="javascript:void(0)" @click="sendComment">发送</a>
+                        <a class="cancel" href="javascript:void(0)" @click="sendCommentBtn=false">取消</a>
                     </div>
                 </transition>
             </form>
@@ -78,7 +78,7 @@
                                 <div class="meta">
                                     <span>
                                         {{comment.floor}}楼·
-                                        {{comment.create_at | formatDate}}
+                                        {{comment.create_at |formatDate}}
                                     </span>
                                 </div>
                             </div>
@@ -90,7 +90,9 @@
                             <div class="tool-group">
                                 <a href="javascript:void(0)">
                                     <i class="fa fa-thumbs-o-up"></i>
-                                    <span>{{comment.likes_count}}</span>
+                                    <span>
+                                        {{comment.likes_count}}人点赞
+                                    </span>
                                 </a>
                                 <a href="javascript:void(0)">
                                     <i class="fa fa-comment-o"></i>
@@ -99,54 +101,72 @@
                             </div>
                         </div>
                     </div>
-                    <div class="sub-comment-list" v-if="comment.children.length != 0">
-                        <div v-for="(subComment,index) in comment.children"
-                             :id="'comment-' + subComment.id"
-                             class="sub-comment">
+                    <div v-if="comment.children.length != 0" class="sub-comment-list">
+                        <div v-for="(subComment,index) in comment.children" :id="'comment-' + subComment.id" class="sub-comment">
                             <p>
-                                <nuxt-link to="/u">
+                                <nuxt-link to="/u/123">
                                     {{subComment.user.nick_name}}
                                 </nuxt-link>
-                                <span>
-                                    :{{subComment.compiled_content}}
-                                </span>
+                                :
+                                <span v-html="subComment.compiled_content"></span>
                             </p>
                             <div class="sub-tool-group">
-                                <span>
-                                    {{subComment.create_at | formatDate}}
-                                </span>
+                                <span>{{subComment.create_at|formatDate}}</span>
                                 <a href="javascript:void(0)">
                                     <i class="fa fa-comment-o"></i>
                                     <span>回复</span>
                                 </a>
                             </div>
                         </div>
-                        <div class="more-comment">
-                            <a href="javascript:void(0)" class="add-comment-btn">
+                        <div class="sub-comment more-comment">
+                            <a class="add-comment-btn" @click="showSubCommentForm(index)" href="javascript:void(0)">
                                 <i class="fa fa-pencil"></i>
                                 <span>添加新评论</span>
                             </a>
-                            <span class="line-warp">
-                                    还有2条评论，
-                                    <a href="javascript:void(0)">展开查看</a>
-                                </span>
                         </div>
+                        <!--要显示的表单-->
+                        <transition :duration="200" name="fade">
+                            <form v-if="activeIndex.includes(index)" class="new-comment">
+                                <textarea v-focus placeholder="写下你的评论"
+                                          v-model="subCommentList[index]"></textarea>
+                                <div class="write-function-block clearfix">
+                                    <div class="emoji-modal-wrap">
+                                        <a href="javascript:void(0)" class="emoji" @click="showSubEmoji(index)">
+                                            <i class="fa fa-smile-o"></i>
+                                        </a>
+                                        <transition :duration="200" name="fade">
+                                            <div v-if="emojiIndex.includes(index)" class="emoji-modal arrow-up">
+                                                <vue-emoji ref="emoji" @select="selectSubEmoji"></vue-emoji>
+                                            </div>
+                                        </transition>
+                                    </div>
+                                    <div class="hint">
+                                        Ctrl+Enter 发表
+                                    </div>
+                                    <a class="btn btn-send" href="javascript:void(0)" @click="sendSubCommentData(index)">
+                                        发送
+                                    </a>
+                                    <a class="cancel" href="javascript:void(0)" @click="closeSubComment(index)">
+                                        取消
+                                    </a>
+                                </div>
+                            </form>
+                        </transition>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </template>
-
 <script>
     import vueEmoji from '~/components/vueEmoji'
-    export  default {
-        name:"myComment",
-        data(){
-            return{
-                send_one:false,
+    export default {
+        name:'myComment',
+        data () {
+            return {
+                sendCommentBtn:false,
                 showEmoji:false,
-                value:'',
+                commentData:'',
                 comments:[
                     {
                         id:19935725,
@@ -235,7 +255,7 @@
                                 user_id:8914781,
                                 user:{
                                     id:8914781,
-                                    nickname:'向天再借5厘米'
+                                    nick_name:'向天再借5厘米'
                                 },
                                 create_at:'2018-01-28T21:06:14.000+08:00',
                                 compiled_content:'<a href="/users/88ad9c9678a6" class="maleskine-author" target="_blank" data-user-slug="88ad9c9678a6">@与笑颜开</a> 搬砖'
@@ -246,7 +266,7 @@
                                 user_id:9964877,
                                 user:{
                                     id:9964877,
-                                    nickname:'保坤文化传媒'
+                                    nick_name:'保坤文化传媒'
                                 },
                                 create_at:'2018-01-25T16:55:40.000+08:00',
                                 compiled_content:'好有意思。'
@@ -272,126 +292,183 @@
                             },
                         user_id:3160769
                     }
-                ]
+                ],
+                activeIndex:[],
+                emojiIndex:[],
+                subCommentList:[],
             }
         },
         methods:{
-          selectEmoji:function (code) {
-              this.showEmoji = false;
-              this.value += code;
-          },
-          sendData:function () {
-            console.log('发送value值给后端')
-          }
+            selectEmoji:function(code){
+                this.showEmoji = false;
+                this.commentData += code;
+            },
+            sendComment:function(){
+                console.log('发送');
+            },
+            showSubCommentForm:function(value){
+                if(this.activeIndex.includes(value)){
+                    let index = this.activeIndex.indexOf(value);
+                    this.activeIndex.splice(index,1);
+                }else{
+                    //清除内容
+                    this.subCommentList[value] = "";
+                    //将表情关掉
+                    this.emojiIndex= [];
+                    this.activeIndex.push(value);
+                }
+            },
+            sendSubCommentData:function(value){
+                let index = this.activeIndex.indexOf(value);
+                this.activeIndex.splice(index,1);
+            },
+            closeSubComment:function(value){
+                let index = this.activeIndex.indexOf(value);
+                this.activeIndex.splice(index,1);
+            },
+            showSubEmoji:function(value){
+                if(this.emojiIndex.includes(value)){
+                    this.emojiIndex = [];
+                }else{
+                    this.emojiIndex = [];
+                    this.emojiIndex.push(value);
+                }
+            },
+            selectSubEmoji:function(code){
+            //    当下下标
+                let index = this.emojiIndex[0];
+            //    将表情所代表的的code值放入表单中
+                if (this.subCommentList[index] == null){
+                    this.subCommentList[index] = ''
+                }
+                this.subCommentList[index] += code;
+                this.emojiIndex = [];
+                console.log(this.subCommentList[index]);
+            }
         },
         components:{
             vueEmoji
-        }
+        },
+        directives: {
+            // 除了默认设置的核心指令( v-model 和 v-show ),Vue 也允许注册自定义指令。
+            // 对纯 DOM 元素进行底层操作
+            // 注册局部指令，在模板中任何元素上使用新的 v-focus 属性
+            "focus": {
+                // 钩子函数：bind inserted update componentUpdated unbind
+                // 钩子函数的参数：el，binding，vnode，oldVnode
+                bind:function(el,binding,vnode,oldVnode){
+                    el.focus();
+                },
+                update:function (el,binding,vnode,oldVnode) {
+                    el.focus();
+                },
+                inserted: function (el) {
+                    // 聚焦元素
+                    el.focus()
+                }
+            }
+        },
     }
-
 </script>
 <style>
-    .fade-enter-active, .fade-leave-active{
+    .fade-enter-active,.fade-leave-active {
         opacity: 1;
         transition: .3s;
         -webkit-transition: .3s
     }
-    .fade-enter, .fade-leave-to{
+    .fade-enter,.fade-leave-to {
         opacity: 0;
         transform: translate3d(0,-5%,0);
         -webkit-transform: translate3d(0,-5%,0);
         transition: .3s;
         -webkit-transition: .3s
     }
-   .note .post .comment-list{
-        padding-top: 20px;
-        margin-bottom: 200px; /*注意要删*/
-   }
-   .note .post .comment-list .new-comment{
-        position: relative;
-        margin-left: 48px;
-        margin-bottom: 20px;
-   }
-   .note .post .comment-list .avatar{
-       width: 38px;
-       height: 38px;
-       display: inline-block;
-       margin-right: 5px;
-   }
-   .note .post .comment-list .new-comment .avatar{
-       position: absolute;
-       left: -48px;
-   }
-   .note .post .comment-list .new-comment textarea{
-       padding: 10px 15px;
-       width: 100%;
-       height: 80px;
-       font-size: 13px;
-       border: 1px solid #dcdcdc;
-       border-radius: 4px;
-       background-color: hsla(0,0%,71%,.1);
-       display: inline-block;
-       outline-style: none;
-       resize: none;
-       vertical-align: top;
-   }
-   .note .post .comment-list .new-comment .write-function-block{
-       height: 50px;
-   }
-   .note .post .comment-list .new-comment .emoji-modal-wrap{
-       position:relative;
-   }
-   .note .post .comment-list .new-comment .emoji{
-       float: left;
-       margin-top: 14px;
-   }
-   .note .post .comment-list .new-comment .emoji i{
-       color: #969696;
-       font-size: 25px;
-   }
-   .note .post .comment-list .new-comment .emoji i:hover{
-       color: #2f2f2f;
-   }
-   .note .post .comment-list .new-comment .hint{
-       float: left;
-       margin: 20px 0 5px 20px;
-       font-size: 13px;
-       color: #969696;
-   }
-   .note .post .comment-list .new-comment .btn-send{
-       float: right;
-       width: 78px;
-       margin: 10px;
-       padding: 8px 18px;
-       font-size: 16px;
-       border: none;
-       border-radius: 20px;
-       color: #fff!important;
-       background-color: #42c02e;
-       outline-style: none;
-       display: block;
-   }
-   .note .post .comment-list .new-comment .btn-send:hover {
-       background:#3db922;
-   }
-   .note .post .comment-list .new-comment .cancel{
-       float: right;
-       margin: 18px 30px 0 0;
-       font-size: 16px;
-       color: #969696!important;
-   }
+    .note .post .comment-list {
+        padding-top:20px;
+    }
+    .note .post .comment-list .new-comment {
+        position:relative;
+        margin-left:48px;
+        margin-bottom:20px;
+    }
+    .note .post .comment-list .avatar {
+        width:38px;
+        height:38px;
+        display:inline-block;
+        margin-right:5px;
+    }
+    .note .post .comment-list .new-comment .avatar {
+        position:absolute;
+        left:-48px;
+    }
+    .note .post .comment-list .new-comment textarea {
+        width:100%;
+        height:80px;
+        padding:10px 15px;
+        border:1px solid #ccc;
+        border-radius: 4px;
+        display:inline-block;
+        vertical-align: top;
+        outline-style: none;
+        resize: none;
+        font-size:13px;
+        background:#f8f8f8;
+    }
+    .note .post .comment-list .new-comment .emoji-modal-wrap {
+        position:relative;
+    }
+    .note .post .comment-list .new-comment .emoji {
+        float:left;
+        margin-top:14px;
+    }
+    .note .post .comment-list .new-comment .emoji i {
+        font-size:25px;
+        color:#969696;
+    }
+    .note .post .comment-list .new-comment .emoji i:hover {
+        color:#333;
+    }
+    .note .post .comment-list .new-comment .hint {
+        float:left;
+        margin:20px 0 0 20px;
+        font-size:13px;
+        color:#969696;
+    }
+    .note .post .comment-list .new-comment .cancel {
+        float:right;
+        font-size:16px;
+        margin:18px 30px 0 0;
+        color:#969696!important;
+    }
+    .note .post .comment-list .new-comment .cancel:hover {
+        color:#333!important;
+    }
+    .note .post .comment-list .new-comment .btn-send {
+        float:right;
+        width:78px;
+        padding:8px 18px;
+        margin:10px 0;
+        font-size:16px;
+        background:#42c02e;
+        border-radius: 20px;
+        color:#fff!important;
+        box-shadow: none;
+    }
+    .note .post .comment-list .new-comment .btn-send:hover {
+        background:#3db922;
+    }
     .note .post .comment-list .new-comment .emoji-modal-wrap .emoji-modal {
         position:absolute;
         top:50px;
         left:-48px;
-        width:400px;
-        height:206px;
+        width:402px;
+        height:208px;
+        padding:10px;
         border:1px solid #d9d9d9;
         border-radius:4px;
         box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+        background:#fff;
         z-index:10001;
-        padding: 10px;
-        background-color: #fff;
     }
     .arrow-up:after {
         content:'';
@@ -437,6 +514,9 @@
         padding:20px 0 30px 0;
         border-bottom:1px solid #f0f0f0;
     }
+    .note .post .comment-list .comment .author {
+        margin-bottom:15px;
+    }
     .note .post .comment-list .info {
         display:inline-block;
         vertical-align: middle;
@@ -448,73 +528,70 @@
         font-size:12px;
         color:#969696;
     }
-    .note .post .comment-list .comment .author{
-        margin-bottom: 15px;
-    }
-    .note .post .comment-list .comment p{
-        font-size: 16px;
-        margin: 10px 0;
-        line-height: 1.5;
+    .note .post .comment-list .comment p {
+        font-size:16px;
+        margin:10px 0;
+        line-height:1.5;
         word-break: break-word!important;
     }
-    .note .post .comment-list .comment .tool-group a{
-        margin-right: 10px;
-        font-size: 0;
-        color: #969696!important;
-        display: inline-block;
+    .note .post .comment-list .comment .tool-group a {
+        color:#969696!important;
+        margin-right:10px;
     }
-    .note .post .comment-list .comment .tool-group a i{
-        margin-right: 5px;
-        font-size: 18px;
-        vertical-align: middle;
+    .note .post .comment-list .comment .tool-group a i {
+        font-size:18px;
+        margin-right:5px;
     }
-    .note .post .comment-list .comment .tool-group a span{
-        font-size: 14px;
-        vertical-align: middle;
+    .note .post .comment-list .comment .tool-group a span {
+        font-size:14px;
     }
-    .note .post .comment-list .sub-comment-list{
-        margin-top: 20px;
-        padding: 5px 0 5px 20px;
-        border-left: 2px solid #d9d9d9;
+    .note .post .comment-list .sub-comment-list {
+        border-left:2px solid #d9d9d9;
+        margin-top:20px;
+        padding:5px 0 5px 20px;
     }
     .note .post .comment-list .sub-comment {
+        padding-bottom:15px;
+        margin-bottom:15px;
+        border-bottom:1px dashed #f0f0f0;
+    }
+    .note .post .comment-list .sub-comment-list .sub-comment:last-child {
+        margin: 0;
+        padding: 0;
+        border: none;
+    }
+    .note .post .comment-list .sub-comment p {
+        font-size:14px;
+        line-height:1.5;
+        margin-bottom:5px;
+    }
+    .note .post .comment-list .sub-comment p a {
+        color:#3194d0!important;
+    }
+    .note .post .comment-list .sub-tool-group {
+        font-size:12px;
+        color:#969696;
+    }
+    .note .post .comment-list .sub-tool-group a {
+        margin-left:10px;
+    }
+    .note .post .comment-list .sub-tool-group a i {
+        margin-right:5px;
+    }
+    .note .post .comment-list .more-comment {
+        font-size:14px;
+        color:#969696;
         margin-bottom: 15px;
         padding-bottom: 15px;
-        border-bottom: 1px dashed #f0f0f0;
+        border:none;
     }
-    .note .post .comment-list .comment .sub-comment  p {
-        word-break: break-word!important;
-        margin: 0 0 5px;
-        font-size: 14px;
-        line-height: 1.5;
+    .note .post .comment-list .more-comment a:hover {
+        color:#333!important;
     }
-    .note .post .comment-list .comment .sub-comment p a{
-        color: #3194d0!important;
+    .note .post .comment-list .more-comment i {
+        margin-right:5px;
     }
-    .note .post .comment-list .comment .sub-tool-group {
-        font-size: 12px;
-        color: #969696;
-    }
-    .note .post .comment-list .comment .sub-tool-group a {
-        margin-left: 10px;
-    }
-    .note .post .comment-list .comment .sub-tool-group a i {
-        margin-right: 5px;
-        font-size: 14px;
-    }
-    .note .post .comment-list .comment .sub-comment-list .more-comment {
-        font-size: 14px;
-        color: #969696!important;
-    }
-    .note .post .comment-list .sub-comment-list .add-comment-btn i {
-        margin-right: 5px;
-    }
-    .note .post .comment-list .sub-comment-list .line-warp {
-        margin-left: 10px;
-        padding-left: 10px;
-        border-left: 1px solid #d9d9d9;
-    }
-    .note .post .comment-list .sub-comment-list .line-warp{
-        color: #3194d0!important;
+    .note .post .comment-list .sub-comment-list .new-comment {
+        margin: 0;
     }
 </style>
