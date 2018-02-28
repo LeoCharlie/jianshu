@@ -6,7 +6,12 @@
                 <nuxt-link class="avatar" to="/u/213">
                     <img src="../assets/img/default-avatar.jpg">
                 </nuxt-link>
-                <textarea @focus="sendCommentBtn=true" placeholder="写下你的评论" v-model="commentData"></textarea>
+                <textarea
+                        v-focus="emojiFocus"
+                        @focus="sendCommentBtn=true"
+                        placeholder="写下你的评论"
+                        v-model="commentData"
+                ></textarea>
                 <transition :duration="200" name="fade">
                     <div v-if="sendCommentBtn" class="write-function-block clearfix">
                         <div class="emoji-modal-wrap">
@@ -23,7 +28,7 @@
                             Ctrl+Enter 发表
                         </div>
                         <a class="btn btn-send" href="javascript:void(0)" @click="sendComment">发送</a>
-                        <a class="cancel" href="javascript:void(0)" @click="sendCommentBtn=false">取消</a>
+                        <a class="cancel" href="javascript:void(0)" @click="closeComment">取消</a>
                     </div>
                 </transition>
             </form>
@@ -88,21 +93,28 @@
                                 {{comment.compiled_content}}
                             </p>
                             <div class="tool-group">
-                                <a href="javascript:void(0)">
-                                    <i class="fa fa-thumbs-o-up"></i>
-                                    <span>
+                                <a href="javascript:void(0)"
+                                   @click="commentLike(index)">
+                                    <i class="fa"
+                                       :class="comment.liked?'fa-thumbs-up liked':'fa-thumbs-o-up'"></i>
+                                    <span :class="comment.liked?'real-like':''">
                                         {{comment.likes_count}}人点赞
                                     </span>
                                 </a>
-                                <a href="javascript:void(0)">
+                                <a href="javascript:void(0)"
+                                   @click="showSubCommentForm(index,'top','')">
                                     <i class="fa fa-comment-o"></i>
                                     <span>回复</span>
                                 </a>
                             </div>
                         </div>
                     </div>
-                    <div v-if="comment.children.length != 0" class="sub-comment-list">
-                        <div v-for="(subComment,index) in comment.children" :id="'comment-' + subComment.id" class="sub-comment">
+                    <div class="sub-comment-list">
+                        <div v-show="comment.children.length != 0"
+                             v-for="(subComment,nindex) in comment.children"
+                             :id="'comment-' + subComment.id"
+                             class="sub-comment"
+                             :keys="nindex">
                             <p>
                                 <nuxt-link to="/u/123">
                                     {{subComment.user.nick_name}}
@@ -112,23 +124,27 @@
                             </p>
                             <div class="sub-tool-group">
                                 <span>{{subComment.create_at|formatDate}}</span>
-                                <a href="javascript:void(0)">
+                                <a href="javascript:void(0)"
+                                   @click="showSubCommentForm(index,subComment.id,subComment.user.nick_name)">
                                     <i class="fa fa-comment-o"></i>
                                     <span>回复</span>
                                 </a>
                             </div>
                         </div>
                         <div class="sub-comment more-comment">
-                            <a class="add-comment-btn" @click="showSubCommentForm(index)" href="javascript:void(0)">
+                            <a class="add-comment-btn" @click="showSubCommentForm(index,'bottom','')" href="javascript:void(0)">
                                 <i class="fa fa-pencil"></i>
                                 <span>添加新评论</span>
                             </a>
                         </div>
                         <!--要显示的表单-->
                         <transition :duration="200" name="fade">
-                            <form v-if="activeIndex.includes(index)" class="new-comment">
-                                <textarea v-focus placeholder="写下你的评论"
-                                          v-model="subCommentList[index]"></textarea>
+                            <form v-show="activeIndex.includes(index)" class="new-comment">
+                                <textarea v-focus="commentFormState[index]"
+                                          @blur="commentFormState[index]=false"
+                                          placeholder="写下你的评论"
+                                          v-model="subCommentList[index]"
+                                          ref="content"></textarea>
                                 <div class="write-function-block clearfix">
                                     <div class="emoji-modal-wrap">
                                         <a href="javascript:void(0)" class="emoji" @click="showSubEmoji(index)">
@@ -159,6 +175,7 @@
     </div>
 </template>
 <script>
+    import Vue from 'vue'
     import vueEmoji from '~/components/vueEmoji'
     export default {
         name:'myComment',
@@ -296,35 +313,60 @@
                 activeIndex:[],
                 emojiIndex:[],
                 subCommentList:[],
+                commentFormState:[],
+                commentId:[],
+                emojiFocus:false,
             }
         },
         methods:{
             selectEmoji:function(code){
                 this.showEmoji = false;
                 this.commentData += code;
+                this.emojiFocus = true;
             },
             sendComment:function(){
-                console.log('发送');
+                this.commentData = '';
+                this.sendCommentBtn = false;
             },
-            showSubCommentForm:function(value){
-                if(this.activeIndex.includes(value)){
-                    let index = this.activeIndex.indexOf(value);
-                    this.activeIndex.splice(index,1);
+            closeComment:function () {
+                this.commentData = '';
+                this.sendCommentBtn = false;
+            },
+            showSubCommentForm:function(index,id,name){
+                let ID = id.toString();
+                if(this.commentId[index] == ID){
+                    //点两次
+                    this.activeIndex.splice(this.activeIndex.indexOf(index),1);
+                    this.commentId[index] = '';
                 }else{
-                    //清除内容
-                    this.subCommentList[value] = "";
-                    //将表情关掉
-                    this.emojiIndex= [];
-                    this.activeIndex.push(value);
+                    //点一次
+                    //清除表单内容
+                    this.subCommentList[index] = '';
+                    //表情关掉
+                    this.emojiIndex = [];
+                    if(!this.activeIndex.includes(index)){
+                        this.activeIndex.push(index);
+                    }
+                    // 判断用户名是否存在，如果存在添加
+                    if(name != ''){
+                        this.subCommentList[index] = `@${name} `;
+                    }
+                    //存一下上一个回复列表对应点击的按钮
+                    this.commentId[index] = ID;
+                    //获取焦点
+                    this.commentFormState[index] = true;
                 }
             },
             sendSubCommentData:function(value){
                 let index = this.activeIndex.indexOf(value);
                 this.activeIndex.splice(index,1);
+                //value是下标
+                alert(this.subCommentList[value]);
             },
             closeSubComment:function(value){
                 let index = this.activeIndex.indexOf(value);
                 this.activeIndex.splice(index,1);
+                this.commentId[value] = '';
             },
             showSubEmoji:function(value){
                 if(this.emojiIndex.includes(value)){
@@ -335,15 +377,28 @@
                 }
             },
             selectSubEmoji:function(code){
-            //    当下下标
+                //当前下标
                 let index = this.emojiIndex[0];
-            //    将表情所代表的的code值放入表单中
-                if (this.subCommentList[index] == null){
-                    this.subCommentList[index] = ''
+                //将表情所代表的code值放入表单当中.
+                if(this.subCommentList[index] == null){
+                    this.subCommentList[index] = '';
                 }
                 this.subCommentList[index] += code;
+                //关掉emoji弹出框
                 this.emojiIndex = [];
-                console.log(this.subCommentList[index]);
+                //聚焦一下
+                this.commentFormState[index] = true;
+            },
+            commentLike:function (index) {
+                if(this.comments[index].liked){
+                    //点赞过的再点就是取消
+                    this.comments[index].liked = false;
+                    this.comments[index].likes_count -= 1;
+                }else {
+                    //没有点过赞再点就是确认点赞
+                    this.comments[index].liked = true;
+                    this.comments[index].likes_count += 1;
+                }
             }
         },
         components:{
@@ -356,15 +411,21 @@
             "focus": {
                 // 钩子函数：bind inserted update componentUpdated unbind
                 // 钩子函数的参数：el，binding，vnode，oldVnode
-                bind:function(el,binding,vnode,oldVnode){
-                    el.focus();
+                bind:function(el,{value}){
+                    if(value){
+                        el.focus();
+                    }
                 },
-                update:function (el,binding,vnode,oldVnode) {
-                    el.focus();
+                inserted: function (el,{value}) {
+                    if(value){
+                        // 聚焦元素
+                        el.focus()
+                    }
                 },
-                inserted: function (el) {
-                    // 聚焦元素
-                    el.focus()
+                update:function(el,{value}){
+                    if(value){
+                        el.focus();
+                    }
                 }
             }
         },
@@ -390,6 +451,7 @@
         position:relative;
         margin-left:48px;
         margin-bottom:20px;
+        padding: 5px 0px;
     }
     .note .post .comment-list .avatar {
         width:38px;
@@ -545,10 +607,28 @@
     .note .post .comment-list .comment .tool-group a span {
         font-size:14px;
     }
+    .note .post .comment-list .tool-group a:hover span{
+        color: #333;
+    }
+    .note .post .comment-list .tool-group a:first-child:hover i{
+        color: #ea6f5a;
+    }
+    .note .post .comment-list .tool-group a:last-child:hover i{
+        color: #333;
+    }
+    .note .post .comment-list .tool-group a:active i{
+        color: #ea6f5a;
+    }
+    .note .post .comment-list .comment .tool-group i.liked{
+        color: #ea6f5a;
+    }
+    .note .post .comment-list .comment .tool-group span.real-like{
+        color: #333;
+    }
     .note .post .comment-list .sub-comment-list {
         border-left:2px solid #d9d9d9;
         margin-top:20px;
-        padding:5px 0 5px 20px;
+        padding:0 0 0 20px;
     }
     .note .post .comment-list .sub-comment {
         padding-bottom:15px;
